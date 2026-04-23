@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package bolt.sensors;
+
+enum GnssFrame { REF_ENU = 0; REF_NED = 1; }
+
+message GnssPosition {
+  double time = 1;
+  double latitude_deg = 2;
+  double longitude_deg = 3;
+  double altitude_deg = 4;
+
+  double velocity_east = 5;
+  double velocity_north = 6;
+  double velocity_up = 7;
+
+  string link_name = 8;
+}
