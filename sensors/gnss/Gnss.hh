@@ -2,6 +2,7 @@
 
 #include <gz/sensors.hh>
 #include <gz/transport.hh>
+#include <gz/msgs.hh>
 #include <sdf/sdf.hh>
 
 namespace gz {
@@ -23,7 +24,13 @@ public:
 
 	bool Update(const std::chrono::steady_clock::duration &now) override;
 
-	bool HasConnections() const override;
+	void SetPosition(const double latitude,
+			 const double longitude,
+			 const double altitude);
+
+	void SetVelocity(const double vel_east,
+			 const double vel_north,
+			 const double vel_up);
 
 private:
 	std::unique_ptr<GnssSensorPrivate> mDataPtr;

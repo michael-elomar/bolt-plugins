@@ -27,15 +27,26 @@ gz_find_package(gz-plugin REQUIRED COMPONENTS loader register)
 gz_find_package(gz-transport REQUIRED COMPONENTS log parameters)
 
 #--------------------------------------
+# Find gz-sensors
+gz_find_package(gz-sensors REQUIRED)
+
+#--------------------------------------
 # Find gz-msgs
 gz_find_package(gz-msgs REQUIRED)
+
+#--------------------------------------
+# Find gz-rendering
+gz_find_package(gz-rendering REQUIRED)
 
 # Find gz-msgs
 gz_find_package(gz-sim REQUIRED)
 
+
 include_directories(${GZ-PLUGIN_INCLUDE_DIRS})
 link_directories(${GZ-PLUGIN_LIBRARY_DIRS})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GZ-PLUGIN_CXX_FLAGS}")
+
+add_subdirectory(sensors)
 
 add_subdirectory(example)
 
