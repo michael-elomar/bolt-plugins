@@ -1,7 +1,5 @@
 #include "Gnss.hh"
-#include "gz/sim/components/LinearVelocity.hh"
-#include "gz/sim/components/Pose.hh"
-#include "GnssPlugin.hh"
+#include "GnssSystem.hh"
 
 namespace gz {
 namespace sim {
