@@ -9,7 +9,7 @@ public:
 
 	transport::Node::Publisher pub;
 
-	NoisePtr noise;
+	NoisePtr horizontalNoise, verticalNoise;
 
 	bool loaded = false;
 
@@ -86,10 +86,18 @@ bool GnssSensor::Load(const sdf::Sensor &sdfSensor)
 	}
 	sdf::Noise noiseSdf;
 	noiseSdf.Load(customElem->FindElement("noise"));
-	mDataPtr->noise = NoiseFactory::NewNoiseModel(noiseSdf);
+	mDataPtr->horizontalNoise = NoiseFactory::NewNoiseModel(noiseSdf);
 
-	if (mDataPtr->noise == nullptr) {
-		gzerr << "Failed to load noise from sdf" << std::endl;
+	if (mDataPtr->horizontalNoise == nullptr) {
+		gzerr << "Failed to load horizontal noise from sdf"
+		      << std::endl;
+		return false;
+	}
+
+	mDataPtr->verticalNoise = NoiseFactory::NewNoiseModel(noiseSdf);
+
+	if (mDataPtr->verticalNoise == nullptr) {
+		gzerr << "Failed to load vertical noise from sdf" << std::endl;
 		return false;
 	}
 
@@ -104,19 +112,22 @@ bool GnssSensor::Update(const std::chrono::steady_clock::duration &now)
 	*msg.mutable_header()->mutable_stamp() = msgs::Convert(now);
 	msg.set_frame_id(this->FrameId());
 
-	mDataPtr->latitude = mDataPtr->noise->Apply(mDataPtr->latitude);
+	mDataPtr->latitude =
+		mDataPtr->horizontalNoise->Apply(mDataPtr->latitude);
 
-	mDataPtr->longitude = mDataPtr->noise->Apply(mDataPtr->longitude);
+	mDataPtr->longitude =
+		mDataPtr->horizontalNoise->Apply(mDataPtr->longitude);
 
-	mDataPtr->altitude = mDataPtr->noise->Apply(mDataPtr->altitude);
+	mDataPtr->altitude = mDataPtr->verticalNoise->Apply(mDataPtr->altitude);
 
 	mDataPtr->velocity_east =
-		mDataPtr->noise->Apply(mDataPtr->velocity_east);
+		mDataPtr->horizontalNoise->Apply(mDataPtr->velocity_east);
 
 	mDataPtr->velocity_north =
-		mDataPtr->noise->Apply(mDataPtr->velocity_north);
+		mDataPtr->horizontalNoise->Apply(mDataPtr->velocity_north);
 
-	mDataPtr->velocity_up = mDataPtr->noise->Apply(mDataPtr->velocity_up);
+	mDataPtr->velocity_up =
+		mDataPtr->verticalNoise->Apply(mDataPtr->velocity_up);
 
 	msg.set_velocity_north(mDataPtr->velocity_north);
 	msg.set_velocity_east(mDataPtr->velocity_east);

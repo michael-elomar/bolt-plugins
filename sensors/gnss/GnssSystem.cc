@@ -124,22 +124,27 @@ void GnssSystemPrivate::AddSensor(const EntityComponentManager &_ecm,
 				  const components::ParentEntity *_parent)
 
 {
-	std::string sensorScopedName =
-		removeParentScope(scopedName(_entity, _ecm, "::", false), "::");
 	sdf::Sensor data = _gnss->Data();
-	data.SetName(sensorScopedName);
+	if (data.Name().empty()) {
+		std::string sensorScopedName = removeParentScope(
+			scopedName(_entity, _ecm, "::", false), "::");
+		data.SetName(sensorScopedName);
+	}
 
 	if (data.Topic().empty()) {
-		std::string topic = scopedName(_entity, _ecm);
-		data.SetTopic(topic);
+		std::string topicName =
+			_ecm.Component<components::Name>(
+				    topLevelModel(_entity, _ecm))
+				->Data()
+			+ "/sensors/" + data.Name();
+		data.SetTopic(topicName);
 	}
 
 	std::unique_ptr<sensors::GnssSensor> sensor =
 		sensorFactory.CreateSensor<sensors::GnssSensor>(data);
 
 	if (sensor == nullptr) {
-		gzerr << "Failed to create sensor [" << sensorScopedName
-		      << "]\n";
+		gzerr << "Failed to create sensor [" << data.Name() << "]\n";
 		return;
 	}
 
@@ -183,12 +188,12 @@ void GnssSystemPrivate::Update(const EntityComponentManager &_ecm)
 			return;
 		}
 
-		auto worldPose =
-			_ecm.Component<components::WorldPose>(parentEntity);
-		if (!worldPose) {
-			gzerr << "WorldPose component not found on parent link\n";
+		auto latLonAlt = sphericalCoordinates(parentEntity, _ecm);
+		if (!latLonAlt.has_value()) {
+			gzerr << "Could not calculate latLonAlt position of parent link\n";
 			return;
 		}
+
 		auto worldVel = _ecm.Component<components::WorldLinearVelocity>(
 			parentEntity);
 		if (!worldVel) {
@@ -197,7 +202,7 @@ void GnssSystemPrivate::Update(const EntityComponentManager &_ecm)
 		}
 
 		sensors::GnssSensorPtr gnss = entitySensorMap.at(sensorEntity);
-		gnss->SetPosition(worldPose->Data().Pos());
+		gnss->SetPosition(latLonAlt.value());
 		gnss->SetVelocity(worldVel->Data());
 	}
 }
