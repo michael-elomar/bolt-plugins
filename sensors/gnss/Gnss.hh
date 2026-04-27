@@ -4,6 +4,7 @@
 #include <gz/transport.hh>
 #include <gz/msgs.hh>
 #include <sdf/sdf.hh>
+#include <gz/common.hh>
 
 namespace gz {
 namespace sensors {
@@ -24,17 +25,17 @@ public:
 
 	bool Update(const std::chrono::steady_clock::duration &now) override;
 
-	void SetPosition(const double latitude,
-			 const double longitude,
-			 const double altitude);
+	bool HasConnections() const override;
 
-	void SetVelocity(const double vel_east,
-			 const double vel_north,
-			 const double vel_up);
+	void SetPosition(const math::Vector3d position);
+
+	void SetVelocity(const math::Vector3d velocity);
 
 private:
 	std::unique_ptr<GnssSensorPrivate> mDataPtr;
 };
+
+using GnssSensorPtr = std::shared_ptr<GnssSensor>;
 
 } // namespace sensors
 } // namespace gz

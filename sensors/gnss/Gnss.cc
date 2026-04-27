@@ -104,11 +104,9 @@ bool GnssSensor::Update(const std::chrono::steady_clock::duration &now)
 	*msg.mutable_header()->mutable_stamp() = msgs::Convert(now);
 	msg.set_frame_id(this->FrameId());
 
-	mDataPtr->latitude =
-		mDataPtr->noise->Apply(GZ_DTOR(mDataPtr->latitude));
+	mDataPtr->latitude = mDataPtr->noise->Apply(mDataPtr->latitude);
 
-	mDataPtr->longitude =
-		mDataPtr->noise->Apply(GZ_DTOR(mDataPtr->longitude));
+	mDataPtr->longitude = mDataPtr->noise->Apply(mDataPtr->longitude);
 
 	mDataPtr->altitude = mDataPtr->noise->Apply(mDataPtr->altitude);
 
@@ -124,8 +122,8 @@ bool GnssSensor::Update(const std::chrono::steady_clock::duration &now)
 	msg.set_velocity_east(mDataPtr->velocity_east);
 	msg.set_velocity_up(mDataPtr->velocity_up);
 	msg.set_altitude(mDataPtr->altitude);
-	msg.set_latitude_deg(GZ_RTOD(mDataPtr->latitude));
-	msg.set_longitude_deg(GZ_RTOD(mDataPtr->longitude));
+	msg.set_latitude_deg(mDataPtr->latitude);
+	msg.set_longitude_deg(mDataPtr->longitude);
 
 	AddSequence(msg.mutable_header());
 	mDataPtr->pub.Publish(msg);
@@ -133,22 +131,23 @@ bool GnssSensor::Update(const std::chrono::steady_clock::duration &now)
 	return true;
 }
 
-void GnssSensor::SetPosition(const double latitude,
-			     const double longitude,
-			     const double altitude)
+bool GnssSensor::HasConnections() const
 {
-	mDataPtr->latitude = latitude;
-	mDataPtr->longitude = longitude;
-	mDataPtr->altitude = altitude;
+	return mDataPtr->pub && mDataPtr->pub.HasConnections();
 }
 
-void GnssSensor::SetVelocity(const double vel_east,
-			     const double vel_north,
-			     const double vel_up)
+void GnssSensor::SetPosition(const math::Vector3d position)
 {
-	mDataPtr->velocity_east = vel_east;
-	mDataPtr->velocity_north = vel_north;
-	mDataPtr->velocity_up = vel_up;
+	mDataPtr->latitude = position.X();
+	mDataPtr->longitude = position.Y();
+	mDataPtr->altitude = position.Z();
+}
+
+void GnssSensor::SetVelocity(const math::Vector3d velocity)
+{
+	mDataPtr->velocity_east = velocity.X();
+	mDataPtr->velocity_north = velocity.Y();
+	mDataPtr->velocity_up = velocity.Z();
 }
 
 } // namespace sensors

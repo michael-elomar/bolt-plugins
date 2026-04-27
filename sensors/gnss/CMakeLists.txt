@@ -14,7 +14,7 @@ install(TARGETS GnssSensor
 # build system plugin
 
 # Add sources for each plugin to be registered.
-add_library(GnssSystem SHARED GnssPlugin.cc)
+add_library(GnssSystem SHARED GnssSystem.cc)
 set_property(TARGET GnssSystem PROPERTY CXX_STANDARD 17)
 target_link_libraries(GnssSystem
   PUBLIC GnssSensor

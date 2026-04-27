@@ -1,8 +1,12 @@
 #pragma once
 
-#include <gz/sim.hh>
+#include <gz/sim/System.hh>
+#include <gz/sim/Link.hh>
+#include <gz/sim/Util.hh>
+#include <gz/sim/components.hh>
 #include <gz/transport.hh>
 #include <gz/msgs.hh>
+#include <gz/plugin/Register.hh>
 
 namespace gz {
 namespace sim {
