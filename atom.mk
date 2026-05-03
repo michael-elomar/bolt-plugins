@@ -10,7 +10,8 @@ LOCAL_MODULE := bolt
 LOCAL_DESCRIPTION := Bolt Simulation Plugins
 
 LOCAL_LIBRARIES := \
-	gz-sim
+	gz-sim \
+	libnexus
 
 # LOCAL_EXPORT_C_INCLUDES := \
 # 	$(LOCAL_PATH)/gnss \
